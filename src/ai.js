@@ -14,10 +14,12 @@ import Anthropic from "@anthropic-ai/sdk"
 
 const image = await fs.readFile(img)*/
 
-export const ocrKey = process.env.ocrKey
+export const ocrKey = import.meta.env.VITE_OCR_KEY
+
+export const anthroKey = import.meta.env.VITE_ANTHROPIC_API_KEY
 
 const anthropic = new Anthropic({
-        apiKey: process.env.anthroKey,
+        apiKey: anthroKey,
         dangerouslyAllowBrowser: true
     })
 

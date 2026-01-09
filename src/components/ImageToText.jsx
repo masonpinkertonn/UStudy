@@ -71,10 +71,12 @@ export default function ImageToText(props) {
 
     //console.log(currFile.name)
 
+    const myBestKey = ocrKey
+
     const checker = async () => {
         fetch('https://www.handwritingocr.com/api/v3/documents?page=1&per_page=100', {
             headers: {
-                'Authorization': `Bearer ${ocrKey}`,
+                'Authorization': `Bearer ${myBestKey}`,
                 'Accept': 'application/json'
             }
         }).then(response => response.json()).then(data => setStatus(data.documents[0].status))
@@ -99,7 +101,7 @@ export default function ImageToText(props) {
         //console.log("Checking.")
         fetch('https://www.handwritingocr.com/api/v3/documents?page=1&per_page=100', {
             headers: {
-                'Authorization': `Bearer ${ocrKey}`,
+                'Authorization': `Bearer ${myBestKey}`,
                 'Accept': 'application/json'
             }
         }).then(response => response.json()).then(data => 

@@ -7,6 +7,7 @@ import ImageToText from "./components/ImageToText"
 import Flashcard from "./components/Flashcard"
 import SetCard from "./components/SetCard"
 import SetsZone from "./components/SetsZone"
+import { anthroKey, ocrKey } from "./ai"
 
 export default function App() {
   const [userList, setUserList] = useState([])
@@ -139,7 +140,9 @@ export default function App() {
 
   //getDocs(notesCollectionRef).then(data => console.log(data))
 
-  
+  //console.log(ocrKey)
+
+  //console.log(anthroKey)
 
   return (
     <>
