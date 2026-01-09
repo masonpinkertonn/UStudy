@@ -1,17 +1,20 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import Header from "./components/Header"
 import Auth from "./components/auth"
-import {db} from './config/firebase-config'
+import {auth, db} from './config/firebase-config'
 import {getDocs, collection, addDoc, deleteDoc, doc} from "firebase/firestore"
 import ImageToText from "./components/ImageToText"
 import Flashcard from "./components/Flashcard"
 import SetCard from "./components/SetCard"
 import SetsZone from "./components/SetsZone"
 import { anthroKey, ocrKey } from "./ai"
+import { signOut } from "firebase/auth"
 
 export default function App() {
   const [userList, setUserList] = useState([])
   const [notesList, setNotesList] = useState([])
+
+  const ogMount = useRef(false)
 
   const [signedIn, setSignedIn] = useState(false)
 
@@ -33,6 +36,8 @@ export default function App() {
   const [isSets, setIsSets] = useState(false)
 
   const [isUpload, setIsUpload] = useState(false)
+
+  const[leaving, setLeaving] = useState(false)
 
   async function checkSets() {
     const data = await getDocs(notesCollectionRef)
@@ -76,7 +81,7 @@ export default function App() {
       if (notesList[i].emailWith === email && notesList[i].title !== undefined && notesList[i].idWith !== undefined) {
         //console.log("Match!")
         setNumm++
-        tempSet.push([notesList[i].emailWith, notesList[i].data, notesList[i].title])
+        tempSet.push([notesList[i].emailWith, notesList[i].data, notesList[i].title, notesList[i].idWith])
       }
     }
     setSetNum(setNumm)
@@ -86,9 +91,9 @@ export default function App() {
   }
 
   const setMapper = mySets.map((currSet) => {
-    if (currSet[2] !== undefined)
+    if (currSet[2] !== undefined && currSet[3].length > 0 && currSet[1] !== undefined)
     {
-    return <SetCard coll={notesCollectionRef} allData={currSet} key={currSet} name={currSet[2]} data={currSet[1]}/>
+    return <SetCard coll={notesCollectionRef} allData={currSet} key={currSet} name={currSet[2]} data={currSet[1]} importantID={currSet[3]}/>
     }
   })
 
@@ -144,10 +149,22 @@ export default function App() {
 
   //console.log(anthroKey)
 
+  useEffect(() => {
+    if (!ogMount.current) {
+      ogMount.current = true
+      return
+    }
+
+    signOut(auth).then(() => console.log("Done")).then(() => setUsername(""))
+  }, [leaving])
+
+  console.log(leaving)
+  console.log(userName.length)
+
   return (
     <>
-      <Header name={userName} handler={setUsername}/>
-      {userName.length <= 0 && <Auth userList={userList} handleSign={setUsername} handleMail={setEmail} coll={usersCollectionRef} />}
+      <Header name={userName} handler={setUsername} toSign={setLeaving}/>
+      {(userName.length <= 0) && <Auth userList={userList} handleSign={setUsername} handleMail={setEmail} coll={usersCollectionRef} toSign={leaving}/>}
 
       {false && <div style={{color: "white"}}>
         <input placeholder="Username..." onInput={(e) => changeUserNameLive(e)}/>

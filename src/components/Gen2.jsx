@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react"
-import { getDoc, doc, updateDoc, addDoc } from "firebase/firestore"
+import { getDoc, doc, updateDoc, addDoc, arrayUnion } from "firebase/firestore"
 import { db } from "../config/firebase-config"
 import { ocrKey } from "../ai"
 
@@ -9,7 +9,7 @@ import Flashcard from "./Flashcard"
 
 import { getAI, getAITitle } from "../ai"
 
-export default function Generation(props) {
+export default function Gen2(props) {
     const didMount = useRef(false)
     
     const didMountBig = useRef(false)
@@ -145,11 +145,20 @@ export default function Generation(props) {
                     let trackID = ""
                     let docRef
 
-                    getAITitle(fetchedData).then(response => {addDoc(props.coll, {data: newResponse, emailWith: props.email, title: response, idWith: ""}).then((doc) => setImportantId(doc.id)).then(() => {
+                    for (let i = 0; i < newResponse.length; i++) {
+                        const current = newResponse[i]
+                        getDoc(doc(db, "notelists", props.importantID)).then(data => {
+                                console.log(data.id)
+                                trackID = data.id
+                                docRef = doc(db, "notelists", trackID)
+                            }).then(() => updateDoc(docRef, {
+                                data: arrayUnion(current)
+                            }).then(() => {
                         setIsProcessingShow(false)
                         setIsReady(true)
     
-                    })})
+                    }))
+                    }
                     })
                     
                 })
@@ -163,7 +172,7 @@ export default function Generation(props) {
 
 //getDoc(doc(db, "notelists", props.importantID)).then(data => console.log(data))
 
-    function hiddenFunc() {
+    /*function hiddenFunc() {
         try {
             let trackID = ""
             let docRef
@@ -176,13 +185,12 @@ export default function Generation(props) {
             }))
             setIsReadyTwo(true)
             setIsError(false)
-            setIsReady(false)
         }
         catch {
             setIsReadyTwo(false)
             setIsError(true)
         }
-    }
+    }*/
 
     useEffect(() => {
         if (!didMount.current) {
@@ -212,7 +220,9 @@ export default function Generation(props) {
 
             {isProcessingShow && <h1 style={{color: "white"}}>Processing...</h1>}
 
-            {isReady && <button onClick={hiddenFunc}>Finish operation</button>}
+            {isReadyTwo && <div className="markdown"><ReactMarkdown>{resp}</ReactMarkdown></div>}
+            
+            {isReadyTwo && <div className="flashZone"><Flashcard passedArr={passedArr} passedTwoD={passedTwoD}/></div>}
         </div>
     )
 }

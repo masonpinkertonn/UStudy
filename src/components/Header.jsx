@@ -1,6 +1,10 @@
+import { signOut } from "firebase/auth"
+import { auth } from "../config/firebase-config"
+
 export default function Header(props) {
     const handleClick = () => {
-        props.handler("")
+        props.toSign(true)
+        //await signOut(auth)
     }
 
     return (

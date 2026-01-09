@@ -1,7 +1,11 @@
 import { use, useState } from "react"
 import Flashcard from "./Flashcard"
-import { updateDoc } from "firebase/firestore"
-import Generation from "./Generation"
+import { updateDoc, getDoc, doc, arrayUnion } from "firebase/firestore"
+import Gen2 from "./Gen2"
+
+import ReactMarkdown from "react-markdown"
+
+import { db } from "../config/firebase-config"
 
 export default function SetCard(props) {
     const [isReady, setIsReady] = useState(false)
@@ -40,17 +44,17 @@ export default function SetCard(props) {
         setEditing(prev => !prev)
     }
 
-    //console.log(props.allData)
+    //console.log(props.importantID)
 
     return (
         <div className="outerCard">
             <div className="setDiv">
-                <h3 style={{color: "white"}}>{props.name}</h3>
+                <p style={{color: "white", fontSize: "10px"}}><ReactMarkdown>{props.name}</ReactMarkdown></p>
                 <button onClick={handleFlashcards}>{isReady ? "Close" : "Open"} set</button>        
             </div>
             {isReady && <Flashcard passedArr={passedArr} passedTwoD={passedTwoD}/>}
             <button onClick={makeEdits}>{editing ? "Cancel" : "Edit set"}</button>
-            {editing && <Generation />}
+            {editing && <Gen2 importantID={props.importantID} />}
         </div>
     )
 }

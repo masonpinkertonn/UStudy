@@ -10,8 +10,13 @@ import { db } from "../config/firebase-config"
 import { getAI, getAITitle } from "../ai"
 import Flashcard from "./Flashcard"
 import { playAudio } from "openai/helpers/audio.mjs"
+import Generation from "./Generation"
 
 export default function ImageToText(props) {
+
+    const [isFile, setIsFile] = React.useState(false)
+
+    const [isText, setIsText] = React.useState(false)
 
     const didMount = React.useRef(false)
 
@@ -19,7 +24,11 @@ export default function ImageToText(props) {
 
     const didMountStatus = React.useRef(false)
 
+    const didMountReal = React.useRef(false)
+
     const formData = new FormData()
+
+    const [textField, setTextField] = React.useState("")
 
     const [currFile, setCurrFile] = React.useState({})
     const [imgData, setImgData] = React.useState([])
@@ -120,6 +129,47 @@ export default function ImageToText(props) {
     }, [isProcessingBig])
 
     React.useEffect(() => {
+        if (!didMountReal.current) {
+            didMountReal.current = true
+            return
+        }
+
+        let tempText = textField.split("\n")
+
+        setIsProcessingShow(true)
+
+        getAI(tempText).then(response => {
+                    setResp(response)
+                const newResponse = response.split("\n")
+                let lengthTrack = 0
+                let qapair = [[]]
+                for (let i = 0; i < newResponse.length; i += 2) {
+                    
+                    const newer = newResponse[i].split("->")
+                    //console.log(newer[0])
+                    //console.log(newer[1])
+                    setFront(newer[0])
+                    setBack(newer[1])
+                    qapair.push([])
+                    qapair[lengthTrack][0] = newer[0]
+                    qapair[lengthTrack][1] = newer[1]
+                    lengthTrack++
+                }
+                //console.log(qapair)
+                setPassedArr(lengthTrack)
+                
+                setPassedTwoD(qapair)
+                setIsProcessed(false)
+                let docID = ""
+                getAITitle(tempText).then(response => {addDoc(props.coll, {data: newResponse, emailWith: props.email, title: response, idWith: ""}).then((doc) => setImportantId(doc.id)).then(() => {
+                    setIsProcessingShow(false)
+                    setIsReady(true)
+
+                })})
+                })
+    }, [status])
+
+    React.useEffect(() => {
         if (!didMountStatus.current) {
             didMountStatus.current = true
             return
@@ -176,7 +226,7 @@ export default function ImageToText(props) {
             {
                 lines.push(imgData[i].LineText)
             }
-    }, [status])
+    }, [0])
 
     async function test() {
         
@@ -201,6 +251,7 @@ export default function ImageToText(props) {
             }))
             setIsReadyTwo(true)
             setIsError(false)
+            setIsReady(false)
         }
         catch {
             setIsReadyTwo(false)
@@ -228,31 +279,24 @@ export default function ImageToText(props) {
         }).then(response => response.json()).then(data => setImgData(data)).then(() => console.log("listo")).then(() => setIsProcessingShow(false))
     }, [isProcessingOriginal])
 
+    function sendText() {
+        //console.log(textField)
+        setStatus("lesgo")
+    }
+
     return (
         <>
-        {props.username.length > 0 && <div>
-            <input type="file" id="fileInput" onChange={(e) => handleFiles(e)}/>
-
-            <button onClick={important}>Extract text</button>
-
-            {Object.keys(imgData).length > 0 && <button onClick={loopy}>Generate flashcards</button>}
-
-            {isProcessingShow && <h1 style={{color: "white"}}>Processing...</h1>}
-
-            {isProcessing && <h1 style={{color: "white"}}>Processing... Please try again in a few seconds.</h1>}
-
-            {isProcessed && <h1 style={{color: "white"}}>Processed... Please wait.</h1>}
-
-            {isReady && <button onClick={hiddenFunc}>Show flashcards</button>}
-
-            {isError && <h1 style={{color: "white"}}>Please try again in a few seconds.</h1>}
-
-            {false && <ul style={{color: "white"}}>{mapper}</ul>}
-
-            {isReadyTwo && <div className="markdown"><ReactMarkdown>{resp}</ReactMarkdown></div>}
-
-            {isReadyTwo && <div className="flashZone"><Flashcard passedArr={passedArr} passedTwoD={passedTwoD}/></div>}
+        <button onClick={() => setIsFile(prev => !prev)}>File</button>
+        <button onClick={() => setIsText(prev => !prev)}>Text</button>
+        {isFile && <div>
+            <Generation coll={props.coll} email={props.email}/>
         </div>}
+        {isText && <div>
+            <textarea rows="60" cols="50" onChange={(e) => setTextField(e.target.value)}>Paste your document...</textarea>
+            <button onClick={sendText}>Submit</button>
+            </div>}
+        {isProcessingShow && <h1 style={{color: "white"}}>Processing...</h1>}
+        {isReady && <button onClick={hiddenFunc}>Press to finish operation</button>}
         </>
     )
 }

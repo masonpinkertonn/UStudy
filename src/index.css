@@ -143,6 +143,7 @@ button {
   height: 150px;
   background-color: gray;
   text-align: center;
+  border-radius: 2px;
 }
 
 .setContainer {

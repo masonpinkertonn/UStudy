@@ -1,10 +1,15 @@
 import { auth, googleProvider } from '../config/firebase-config'
-import { createUserWithEmailAndPassword, signInWithPopup, signOut } from 'firebase/auth'
-import React, { use } from "react"
-import {addDoc} from 'firebase/firestore'
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, signOut, getAuth, onAuthStateChanged } from 'firebase/auth'
+import React, { use, useEffect } from "react"
+import {addDoc, getDocs} from 'firebase/firestore'
 import OpenAI from 'openai'
 
+import { collection } from 'firebase/firestore'
+import { db } from '../config/firebase-config'
+
 export default function Auth(props) {
+    const ogState = React.useRef(false)
+
     const [email, setEmail] = React.useState("")
     const [password, setPassword] = React.useState("")
     const [isNotFound, setIsNotFound] = React.useState(false)
@@ -14,10 +19,38 @@ export default function Auth(props) {
     const [currFile, setCurrFile] = React.useState({})
     const [imgData, setImgData] = React.useState([])
     const [linear, setLinear] = React.useState([])
+    const [leaving, setLeaving] = React.useState(false)
+
+    const [alreadyIn, setAlreadyIn] = React.useState(false)
+
+    //const [user, setUser] = React.useState(null)
 
     //console.log(email)
 
-    const signIn = () => {
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            console.log("Signed in...")
+            setAlreadyIn(true)
+        }
+        else {
+            setAlreadyIn(false)
+        }
+    })
+
+    useEffect(() => {
+        if (!ogState.current) {
+          ogState.current = true
+          return
+        }
+    
+        console.log("Ready.")
+    
+        signOut(auth)
+      }, [props.toSign])
+
+    console.log(props.toSign)
+
+    const signIn = async () => {
         try {
             let found = false
             for (let i = 0; i < props.userList.length; i++)
@@ -27,6 +60,9 @@ export default function Auth(props) {
                     found = true
                     props.handleSign(props.userList[i].username)
                     props.handleMail(props.userList[i].email)
+                    const signIn = await signInWithEmailAndPassword(auth, email, password)
+                    console.log("Signed in as: " + signIn.user.email)
+                    //setUser(signIn.user)
                 }
             }
             setIsNotFound(!found)
@@ -68,8 +104,29 @@ export default function Auth(props) {
             await addDoc(props.coll, {username: userName, email: email, password: password, likes: []})
             props.handleSign(userName)
             props.handleMail(email)
+            await createUserWithEmailAndPassword(auth, email, password)
         }
         setIsSafe(wrong)
+    }
+
+    /*if (props.toSign) {
+        setLeaving(true)
+    }*/
+
+    if (alreadyIn) {
+        const emailToCheck = auth.currentUser.email
+        getDocs(collection(db, "users")).then(data => data.docs.map((doc) => ({
+      ...doc.data(),
+      id: doc.id
+    }))).then((docs) => {
+        for (let i = 0; i < docs.length; i++) {
+            if (docs[i].email === emailToCheck) {
+                console.log("Si")
+                props.handleSign(docs[i].username)
+                props.handleMail(docs[i].email)
+            }
+        }
+    })
     }
 
     return (
