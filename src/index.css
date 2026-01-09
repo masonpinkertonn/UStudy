@@ -118,8 +118,48 @@ button {
 
 .frontcard {
   color: white;
+  text-align: center;
 }
 
 .counter {
   color: white;
+}
+
+.innerDiv {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 30vw;
+  gap: 8px;
+}
+
+.leftarr {
+  height: 50px;
+}
+
+.setDiv {
+  width: 250px;
+  height: 150px;
+  background-color: gray;
+  text-align: center;
+}
+
+.setContainer {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.chooser {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.outerCard {
+  row-gap: 8px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
 }

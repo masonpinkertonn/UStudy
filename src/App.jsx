@@ -5,9 +5,12 @@ import {db} from './config/firebase-config'
 import {getDocs, collection, addDoc, deleteDoc, doc} from "firebase/firestore"
 import ImageToText from "./components/ImageToText"
 import Flashcard from "./components/Flashcard"
+import SetCard from "./components/SetCard"
+import SetsZone from "./components/SetsZone"
 
 export default function App() {
   const [userList, setUserList] = useState([])
+  const [notesList, setNotesList] = useState([])
 
   const [signedIn, setSignedIn] = useState(false)
 
@@ -18,7 +21,26 @@ export default function App() {
   const usersCollectionRef = collection(db, "users")
   const notesCollectionRef = collection(db, "notelists")
 
-  const [userName, setUsername] = useState("h")
+  const [userName, setUsername] = useState("")
+
+  const [email, setEmail] = useState("")
+
+  const [setNum, setSetNum] = useState(0)
+
+  const [mySets, setMySets] = useState([[]])
+
+  const [isSets, setIsSets] = useState(false)
+
+  const [isUpload, setIsUpload] = useState(false)
+
+  async function checkSets() {
+    const data = await getDocs(notesCollectionRef)
+    const filteredData = data.docs.map((doc) => ({
+      ...doc.data(),
+      id: doc.id
+    }))
+    setNotesList(filteredData)
+  }
 
   const getUserList = async () => {
       try {
@@ -29,26 +51,58 @@ export default function App() {
       }))
       setUserList(filteredData)
       } catch (err) {
-        console.error(err)
+        //console.error(err)
       }
     }
 
   useEffect(() => {
     getUserList()
+    checkSets()
+    displaySets()
   }, [])
+
+  useEffect(() => {
+    checkSets()
+    displaySets()
+  }, [userName.length])
+
+  function displaySets() {
+    //console.log("Running")
+    let setNumm = 0
+    let tempSet = []
+    for (let i = 0; i < notesList.length; i++) {
+      //console.log("Email with: " + notesList[i].emailWith)
+      if (notesList[i].emailWith === email && notesList[i].title !== undefined && notesList[i].idWith !== undefined) {
+        //console.log("Match!")
+        setNumm++
+        tempSet.push([notesList[i].emailWith, notesList[i].data, notesList[i].title])
+      }
+    }
+    setSetNum(setNumm)
+    setMySets(tempSet)
+    //console.log(tempSet)
+    //console.log(tempSet.length)
+  }
+
+  const setMapper = mySets.map((currSet) => {
+    if (currSet[2] !== undefined)
+    {
+    return <SetCard coll={notesCollectionRef} allData={currSet} key={currSet} name={currSet[2]} data={currSet[1]}/>
+    }
+  })
 
   const onSubmitUser = async () => {
     try {
     for (let i = 0; i < userList.length; i++)
     {
       if (userList[i].username === newUsername) {
-        console.log("No repeats!!")
+        //console.log("No repeats!!")
       }
     }
     await addDoc(usersCollectionRef, {username: newUsername, likes: []})
     getUserList()
     } catch (err) {
-      console.error(err)
+      //console.error(err)
     }
   }
 
@@ -58,7 +112,7 @@ export default function App() {
       await deleteDoc(userDoc)
       getUserList()
     } catch (err) {
-      console.error(err)
+      //console.error(err)
     }
   }
 
@@ -81,10 +135,16 @@ export default function App() {
     getUserList()
   }
 
+  //console.log("Email: "+ email)
+
+  //getDocs(notesCollectionRef).then(data => console.log(data))
+
+  
+
   return (
     <>
       <Header name={userName} handler={setUsername}/>
-      {userName.length <= 0 && <Auth userList={userList} handleSign={setUsername} coll={usersCollectionRef}/>}
+      {userName.length <= 0 && <Auth userList={userList} handleSign={setUsername} handleMail={setEmail} coll={usersCollectionRef} />}
 
       {false && <div style={{color: "white"}}>
         <input placeholder="Username..." onInput={(e) => changeUserNameLive(e)}/>
@@ -103,7 +163,14 @@ export default function App() {
 
       {userName.length > 0 && <h1>Lets go</h1>}
 
-      <ImageToText username={userName} coll={notesCollectionRef}/>
+      {userName.length > 0 && <div className="chooser">
+        <button onClick={() => setIsSets(prev => !prev && !isUpload)}>My Sets</button>
+        <button onClick={() => setIsUpload(prev => !prev && !isSets)}>Upload Files</button>
+      </div>}
+
+      {isSets && <SetsZone userName={userName} setNum={setNum} setMapper={setMapper}/>}
+
+      {isUpload && <ImageToText username={userName} coll={notesCollectionRef} email={email}/>}
     </>
   )
 }

@@ -15,6 +15,8 @@ export default function Auth(props) {
     const [imgData, setImgData] = React.useState([])
     const [linear, setLinear] = React.useState([])
 
+    //console.log(email)
+
     const signIn = () => {
         try {
             let found = false
@@ -24,6 +26,7 @@ export default function Auth(props) {
                 {
                     found = true
                     props.handleSign(props.userList[i].username)
+                    props.handleMail(props.userList[i].email)
                 }
             }
             setIsNotFound(!found)
@@ -64,6 +67,7 @@ export default function Auth(props) {
         if (!wrong) {
             await addDoc(props.coll, {username: userName, email: email, password: password, likes: []})
             props.handleSign(userName)
+            props.handleMail(email)
         }
         setIsSafe(wrong)
     }
