@@ -1,1 +1,1 @@
-AI Scrolling App by Mason Pinkerton
+AI Study App by Mason Pinkerton
