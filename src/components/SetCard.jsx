@@ -6,6 +6,7 @@ import Gen2 from "./Gen2"
 import ReactMarkdown from "react-markdown"
 
 import { db } from "../config/firebase-config"
+import ChatScreen from "./ChatScreen"
 
 export default function SetCard(props) {
     const [isReady, setIsReady] = useState(false)
@@ -15,6 +16,8 @@ export default function SetCard(props) {
     const [passedTwoD, setPassedTwoD] = useState([[]])
 
     const [editing, setEditing] = useState(false)
+
+    const [chatting, setChatting] = useState(false)
 
     const [currFile, setCurrFile] = useState({})
 
@@ -44,6 +47,10 @@ export default function SetCard(props) {
         setEditing(prev => !prev)
     }
 
+    function openChat() {
+        setChatting(prev => !prev)
+    }
+
     //console.log(props.importantID)
 
     return (
@@ -53,7 +60,11 @@ export default function SetCard(props) {
                 <button onClick={handleFlashcards}>{isReady ? "Close" : "Open"} set</button>        
             </div>
             {isReady && <Flashcard passedArr={passedArr} passedTwoD={passedTwoD}/>}
-            <button onClick={makeEdits}>{editing ? "Cancel" : "Edit set"}</button>
+            <div style={{display: "flex"}}>
+                <button onClick={makeEdits}>{editing ? "Cancel" : "Edit set"}</button>
+                <button onClick={openChat}>{chatting ? "Cancel" : "Open chat"}</button>
+            </div>
+            {chatting && <ChatScreen />}
             {editing && <Gen2 importantID={props.importantID} />}
         </div>
     )
