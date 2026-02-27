@@ -182,3 +182,16 @@ button {
   color: black;
   text-align: center;
 }
+
+.chatwindow {
+  width: 20vw;
+  border-radius: 5px;
+  height: 500px;
+  background-color: white;
+}
+
+.bottext {
+  width: 20vw;
+  height: 20px;
+  background-color: gray;
+}
