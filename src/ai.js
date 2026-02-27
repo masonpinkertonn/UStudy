@@ -44,6 +44,7 @@ export async function getAIMCQ(notesdata, context) {
     const newContext = context.join("...newline...")
 
     console.log("CXT: " + newContext)
+    console.log("QUESTION: " + notesdata)
 
     const msg = await anthropic.messages.create({
         model: "claude-sonnet-4-5",
@@ -51,7 +52,7 @@ export async function getAIMCQ(notesdata, context) {
         messages: [
             {
                 role: "user",
-                content: `You will create 4 multiple-choice answers to the following question: ${notesdata}. Only one of these 4 should be correct. DO NOT write ANYTHING other than each potential answer, followed by an * to indicate the next one. For example: He was red*He was blue*He was purple*He was black. You will draw your potential answers from the following context: ${newContext}`
+                content: `You will create 4 multiple-choice answers to the following question: ${notesdata}. Only one of these 4 should be correct. DO NOT write ANYTHING other than each potential answer, followed by an * to indicate the next one, and one answer should say in brackets [CORRECT]. For example: He was red*He was blue*He was purple[CORRECT]*He was black. You will draw your potential answers from the following context: ${newContext}`
             }
         ]
     })
