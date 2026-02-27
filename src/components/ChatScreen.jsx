@@ -3,7 +3,7 @@ import BotChat from "./BotChat";
 import HumanChat from "./HumanChat";
 import { getAI, getAIChatbot } from "../ai";
 
-export default function ChatScreen() {
+export default function ChatScreen(props) {
     const [chatText, setChatText] = React.useState("")
 
     const [myChats, setMyChats] = React.useState(0)
@@ -21,7 +21,7 @@ export default function ChatScreen() {
         }
         else
         {
-            const response = getAIChatbot(toAdd).then((data) => setToMap(prev => [...prev, ["", data]]))
+            const response = getAIChatbot(toAdd, props.important).then((data) => setToMap(prev => [...prev, ["", data]]))
             setToMap(prev => [...prev, [toAdd, "..."]])
         }
     }, [myChats])
@@ -52,6 +52,8 @@ export default function ChatScreen() {
     }
 
     console.log(chatText)
+
+    console.log("Import: " + props.important)
 
     return (
         <div className="chatwindow">

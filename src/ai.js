@@ -40,14 +40,18 @@ export async function getAI(notesdata) {
     return msg.content[0].text
 }
 
-export async function getAIChatbot(notesdata) {
+export async function getAIChatbot(notesdata, context) {
+    const newContext = context.join("...newline...")
+
+    console.log("CXT: " + newContext)
+
     const msg = await anthropic.messages.create({
         model: "claude-sonnet-4-5",
         max_tokens: 1000,
         messages: [
             {
                 role: "user",
-                content: `Answer the following question in 4 to 5 sentences: ${notesdata}`
+                content: `Answer the following question in 4 to 5 sentences: ${notesdata}. This answer exists within a chatbot where you act as an AI tutor on a certain flashcard set. The context for the flashcard set is as follows: ${newContext}. If the user asks to be quizzed on the flashcard set, please quiz them based on the provided context from earlier. Please do not answer any questions unrelated to the context provided.`
             }
         ]
     })
