@@ -40,6 +40,46 @@ export async function getAI(notesdata) {
     return msg.content[0].text
 }
 
+export async function getAIMCQ(notesdata, context) {
+    const newContext = context.join("...newline...")
+
+    console.log("CXT: " + newContext)
+
+    const msg = await anthropic.messages.create({
+        model: "claude-sonnet-4-5",
+        max_tokens: 1000,
+        messages: [
+            {
+                role: "user",
+                content: `You will create 4 multiple-choice answers to the following question: ${notesdata}. Only one of these 4 should be correct. DO NOT write ANYTHING other than each potential answer, followed by an * to indicate the next one. For example: He was red*He was blue*He was purple*He was black. You will draw your potential answers from the following context: ${newContext}`
+            }
+        ]
+    })
+
+    return msg.content[0].text
+}
+
+export async function getAIQuestion(context, asked) {
+    const newContext = context.join("...newline...")
+    const newAsked = asked.join("...newline...")
+
+    console.log("CXT: " + newContext)
+    console.log("ASK", newAsked)
+
+    const msg = await anthropic.messages.create({
+        model: "claude-sonnet-4-5",
+        max_tokens: 1000,
+        messages: [
+            {
+                role: "user",
+                content: `You will write a question relating to this context: ${newContext}. DO NOT write ANYTHING other than just the pure question. This question will be eventually answered by one of four multiple choice prompts, so keep that in mind. Also, try not to do a repeat question. These questions have already been asked: ${newAsked}`
+            }
+        ]
+    })
+
+    return msg.content[0].text
+}
+
 export async function getAIChatbot(notesdata, context) {
     const newContext = context.join("...newline...")
 

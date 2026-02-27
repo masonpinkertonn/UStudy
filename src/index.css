@@ -221,3 +221,31 @@ button {
   flex-direction: column;
   gap: 8px;
 }
+
+.MCScreen {
+  width: 342px;
+  height: 500px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.question_cont {
+  height: 520px;
+  width: 300px;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
+.option {
+  width: 250px;
+  height: 100px;
+  background-color: black;
+  color: white;
+  display: flex;
+  align-items: center;
+}
