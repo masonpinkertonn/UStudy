@@ -184,14 +184,40 @@ button {
 }
 
 .chatwindow {
-  width: 20vw;
+  width: 342px;
   border-radius: 5px;
   height: 500px;
   background-color: white;
+  overflow-y: hidden;
+  position: relative;
 }
 
 .bottext {
-  width: 20vw;
-  height: 20px;
+  width: 342px;
   background-color: gray;
+  display: flex;
+  gap: 16px;
+}
+
+.humantext {
+  width: 342px;
+  background-color: gray;
+  display: flex;
+  gap: 16px;
+}
+
+.typer {
+  width: 342px;
+  height: 50px;
+  display: flex;
+  position: absolute;
+  bottom: 0;
+}
+
+.content {
+  height:450px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }

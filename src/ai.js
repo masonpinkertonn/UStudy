@@ -40,6 +40,21 @@ export async function getAI(notesdata) {
     return msg.content[0].text
 }
 
+export async function getAIChatbot(notesdata) {
+    const msg = await anthropic.messages.create({
+        model: "claude-sonnet-4-5",
+        max_tokens: 1000,
+        messages: [
+            {
+                role: "user",
+                content: `Answer the following question in 4 to 5 sentences: ${notesdata}`
+            }
+        ]
+    })
+
+    return msg.content[0].text
+}
+
 export async function getAIFact(notesdata) {
 
     const msg = await anthropic.messages.create({
