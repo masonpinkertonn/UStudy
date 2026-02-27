@@ -35,6 +35,7 @@ export default function MCQ(props) {
         {
             setCatalyst(prev => !prev)
             setQuestion(question => ++question)
+            setCorrect(false)
         }
         else
         {
@@ -52,11 +53,19 @@ export default function MCQ(props) {
         {
             if (data[i].includes("[CORRECT]"))
             {
-                data[i] = data[i].substring(0, data[i].length - 10)
+                data[i] = data[i].substring(0, data[i].length - 9)
                 setCorrectIndex(i)
             }
         }
         setAnswerChoices(prev => [data[0], data[1], data[2], data[3]])
+    }
+
+    function check(e) {
+        console.log(e.target.id)
+        if (Number(e.target.id) === correctIndex)
+        {
+            setCorrect(true)
+        }
     }
     
     return(
@@ -64,10 +73,10 @@ export default function MCQ(props) {
             <button onClick={goBack}>&larr;</button>
             <div className="question_cont">
                 <h2>Question {question}: {asked[question - 1]}</h2>
-                <div className="option" onClick={check}>{answerChoices[0]}</div>
-                <div className="option" onClick={check}>{answerChoices[1]}</div>
-                <div className="option" onClick={check}>{answerChoices[2]}</div>
-                <div className="option" onClick={check}>{answerChoices[3]}</div>
+                <div className="option" id="0" onClick={(e) => check(e)}>{answerChoices[0]}</div>
+                <div className="option" id="1" onClick={(e) => check(e)}>{answerChoices[1]}</div>
+                <div className="option" id="2" onClick={(e) => check(e)}>{answerChoices[2]}</div>
+                <div className="option" id="3" onClick={(e) => check(e)}>{answerChoices[3]}</div>
                 {correct && <h2>Great job!</h2>}
             </div>
             <button onClick={makeNext}>&rarr;</button>
